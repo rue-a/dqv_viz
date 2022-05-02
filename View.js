@@ -9,7 +9,7 @@ class View {
 
     }
 
-    init(model, width, height, horizontal_margin, vertical_margin, node_size, node_colors, font) {
+    init(model, width, height, horizontal_margin, vertical_margin, node_size, node_colors, node_font, edge_font) {
         this.model = model;
         this.width = width;
         this.height = height;
@@ -17,7 +17,8 @@ class View {
         this.vertical_margin = vertical_margin;
         this.node_colors = node_colors;
         this.r = node_size;
-        this.font = font;
+        this.node_font = node_font;
+        this.edge_font = edge_font;
     }
 
     translate_nodes(x, y, coords_old) {
@@ -176,7 +177,7 @@ class View {
         // this.adjust_to_properties()
 
         for (let p5edge of this.p5edges) {
-            p5edge.show();
+            p5edge.show("dimgray", this.edge_font);
         }
         let p5nodes = Object.values(this.p5nodes);
         this.order_p5nodes(p5nodes);
@@ -186,7 +187,7 @@ class View {
             for (let node_class of Object.keys(this.node_colors)) {
                 if (p5node.get_classes().includes(node_class)) node_color = node_colors[node_class];
             }
-            p5node.show(node_color, this.font);
+            p5node.show(node_color, this.node_font);
         }
 
     }

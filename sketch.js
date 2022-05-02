@@ -29,7 +29,7 @@ const radius = 25;
 let hover = true;
 
 const width = window.innerWidth;
-const height = window.innerHeight;
+const height = window.innerHeight - 0.1;
 const horizontal_margin = width / 5;
 const vertical_margin = height / 5;
 
@@ -38,7 +38,8 @@ const view = new View();
 
 // 
 let canvas;
-let font;
+let inconsolata;
+let open_sans_light_italic;
 let left_clicked_x;
 let left_clicked_y;
 let coords_old = {};
@@ -179,7 +180,7 @@ function enable_hover() {
 // }
 
 function print_controls() {
-  textFont(font);
+  textFont(inconsolata);
   let controls = 'Double left click on a node: Expand this node\nLeft click and hold a node: Drag this node\nStrg plus left click on a node: Go to this nodes IRI\nWheel click on a node: Remove this node from the visualization\n (careful; removing the last node requires reloading the page)'
   textAlign(RIGHT, BOTTOM)
   text(controls, width - 8, height - 8)
@@ -191,7 +192,14 @@ function print_controls() {
 }
 
 function preload() {
-  font = loadFont('./assets/Inconsolata.otf');
+  inconsolata = loadFont('./assets/Inconsolata.otf');
+  open_sans_light_italic = loadFont('./assets/OpenSans-LightItalic.ttf')
+  open_sans_light = loadFont('./assets/OpenSans-Light.ttf')
+
+
+  // for (let colorized_class of Object.keys(node_colors)) {
+  //   node_colors[colorized_class] = color(node_colors[colorized_class])
+  // }
 }
 
 function setup() {
@@ -214,7 +222,8 @@ function setup() {
     vertical_margin,
     radius,
     node_colors,
-    font);
+    inconsolata,
+    open_sans_light);
 
 
   node_model.add_node(initial_node).then(() => {
@@ -238,7 +247,7 @@ function draw() {
 
   if (hover) enable_hover();
 
-  print_controls()
+  print_controls();
 
   // for (let p5arrowConnector of p5arrowConnectors) {
   //   p5arrowConnector.show();

@@ -7,7 +7,7 @@ class P5Node {
         this.description = description;
         this.r = r;
         this.classes = node_classes;
-        this.color = 180;
+        this.color = 'rgb(180,180,180)';
         this.text_color = 0;
         this.target_x = null;
         this.target_y = null;
@@ -166,14 +166,20 @@ class P5Node {
 
         push();
         translate(this.x, this.y);
-
-        // if (this.hovered_prolonged) {
-        //     noStroke()
-        //     fill("red")
-        //     circle(0, 0, 2.2 * this.r);
-        // }
-
         if (color) this.color = color
+
+        if (this.hovered) {
+            let corona_hsl = rgbToHsl(red(this.color), green(this.color), blue(this.color))
+            let lightness = corona_hsl[2] - 0.2;
+            if (lightness < 0) lightness = 0;
+            let corona_color = hslToRgb(corona_hsl[0], corona_hsl[1], lightness)
+            corona_color = 'rgb(' + floor(corona_color[0]) + ',' + floor(corona_color[1]) + ',' + floor(corona_color[2]) + ')'
+            noStroke()
+            fill(corona_color)
+            circle(0, 0, 2.1 * this.r);
+        }
+
+
         fill(this.color)
         noStroke()
         circle(0, 0, 2 * this.r);
@@ -194,7 +200,7 @@ class P5Node {
         const label_height = line_height * label_lines.length;
 
 
-        fill('rgba(255,255,255,0.8)');
+        fill(('rgba(255,255,255,0.8)'));
         noStroke()
         rect(-label_width / 2 - 8, -label_height / 2, label_width + 8, label_height);
         fill(this.text_color)
@@ -207,9 +213,7 @@ class P5Node {
                 const desc_lines = this.wrap_text(this.description, desc_width);
                 const desc_height = line_height * desc_lines.length;
 
-                console.log(label_height)
                 fill('rgba(130,130,130,0.9)');
-                noStroke()
                 rect(-desc_width / 2 - 4, label_height / 2 + 3, desc_width + 4, desc_height + 4);
                 fill(255);
                 noStroke();
