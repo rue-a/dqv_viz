@@ -7,14 +7,14 @@ class Model {
         this.endpoint = null
     }
 
-    set_prefixes(prefixes) {
-        this.prefixes = prefixes
-    }
+    async init(prefixes, endpoint, initial_node, labels, descriptions) {
+        this.prefixes = prefixes;
+        this.endpoint = endpoint;
+        this.labels = labels;
+        this.descriptions = descriptions;
 
-    set_endpoint(endpoint) {
-        this.endpoint = endpoint
+        await this.add_node(initial_node);
     }
-
 
     async sparql(query) {
         const url = this.endpoint +
@@ -24,11 +24,23 @@ class Model {
         return response.json();
     }
 
+    build_filter(variable, options) {
+        let filter = ['FILTER ('];
+        for (let option of options){
+            filter = filter.concat(variable + ' = ' + option);
+            filter = filter.concat(' || ');
+        }
+        filter[filter.length-1] = ')';
+        filter = filter.join(' ');
+        return filter
+    }
+
     async get_node_label(node) {
+        let filter = this.build_filter('?predicate', this.labels);        
         let select = [
             'SELECT ?label WHERE {',
             'OPTIONAL {<' + node + '> ?predicate ?label. }',
-            'FILTER (?predicate = rdfs:label || ?predicate = skos:prefLabel)',
+            filter,
             '}'
         ]
         select = this.prefixes.concat(select).join(' ');
@@ -37,15 +49,16 @@ class Model {
         for (let binding of response.results.bindings) {
             label = binding.label.value
         }
-
         return label;
     }
 
 
     async get_node_description(node) {
+        let filter = this.build_filter('?predicate', this.descriptions); 
         let select = [
             'SELECT ?description WHERE {',
-            'OPTIONAL {<' + node + '> skos:definition ?description. }',
+            'OPTIONAL {<' + node + '> ?predicate ?description. }',
+            filter,
             '}'
         ]
         select = this.prefixes.concat(select).join(' ');

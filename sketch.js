@@ -9,7 +9,8 @@ const PREFIXES = [
   'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>',
   'PREFIX skos: <http://www.w3.org/2004/02/skos/core#>',
   'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>',
-  'PREFIX gkq: <https://geokur-dmp.geo.tu-dresden.de/quality-register#>'
+  'PREFIX prov: <http://www.w3.org/ns/prov#>',
+  'PREFIX gkq: <https://geokur-dmp.geo.tu-dresden.de/quality-register#>',
 ];
 
 const PREDICATES = [
@@ -18,17 +19,23 @@ const PREDICATES = [
   'gkq:inRegister'
 ];
 
-// 
+// add list of labels that are used in visualization. Order of list determines fallback labels, i.e. if there is no rdfs:label, then dct:title is used and so on.
 const LABELS = [
   'rdfs:label',
-  'dct:title',
-  'skos:prefLabel'
+  'skos:prefLabel',
+  'dct:title',  
 ];
 
-const endpoint = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
-const initial_node = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
+const DESCRIPTIONS = [
+  'rdfs:comment',
+  'skos:definition',
+  'dct:description'
+]
 
-// style ---
+const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
+const INITIAL_NODE = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
+
+// style ----
 let hover = true;
 // full IRIs has to be used to refer to node classes (no prefixes)
 const node_colors = {
@@ -73,14 +80,6 @@ function preload() {
 
 function setup() {
   canvas = createCanvas(width, height);
-  canvas.mouseOver(() => {
-    for (let p5node of view.get_nodes()) {
-      let id = p5node.hover();
-      print(id)
-    }
-  })
-  node_model.set_endpoint(endpoint);
-  node_model.set_prefixes(PREFIXES);
 
   view.init(
     node_model,
@@ -100,9 +99,16 @@ function setup() {
     description_container_width
   );
 
-  node_model.add_node(initial_node).then(() => {
+  node_model.init(
+    PREFIXES,
+    ENDPOINT,
+    INITIAL_NODE,
+    LABELS,
+    DESCRIPTIONS
+  ).then(() => {
     view.update_data();
   })
+
   // view.switch_mode()
 }
 
