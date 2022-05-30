@@ -9,7 +9,7 @@ class View {
 
     }
 
-    init(model, width, height, horizontal_margin, vertical_margin, node_size, node_colors, node_font, edge_font) {
+    init(model, width, height, horizontal_margin, vertical_margin, node_size, node_colors, node_font, edge_font, label_color, label_container_color, description_color, description_container_color, label_width, description_width) {
         this.model = model;
         this.width = width;
         this.height = height;
@@ -19,17 +19,18 @@ class View {
         this.r = node_size;
         this.node_font = node_font;
         this.edge_font = edge_font;
+        this.label_color = label_color;
+        this.label_container_color = label_container_color;
+        this.description_color = description_color;
+        this.description_container_color = description_container_color;
+        this.label_width = label_width;
+        this.description_width = description_width;
     }
 
     translate_nodes(x, y, coords_old) {
-
         let dist_x = mouseX - x;
         let dist_y = mouseY - y;
-
-
-
         for (let p5node of Object.values(this.p5nodes)) {
-
             p5node.set_x(coords_old[p5node.get_id()].x + dist_x);
             p5node.target_x = null;
             p5node.set_y(coords_old[p5node.get_id()].y + dist_y);
@@ -163,6 +164,7 @@ class View {
     }
 
     order_p5nodes(p5nodes) {
+        // to get hovered node in foreground of viz
         for (let i in p5nodes) {
             let p5node = p5nodes[i];
             if (p5node.focussed() && i < (p5nodes.length - 1)) {
@@ -187,7 +189,7 @@ class View {
             for (let node_class of Object.keys(this.node_colors)) {
                 if (p5node.get_classes().includes(node_class)) node_color = node_colors[node_class];
             }
-            p5node.show(node_color, this.node_font);
+            p5node.show(node_color, this.node_font, this.label_color, this.label_container_color, this.description_color, this.description_container_color, this.label_width, this.description_width);
         }
 
     }

@@ -8,7 +8,6 @@ class P5Node {
         this.r = r;
         this.classes = node_classes;
         this.color = 'rgb(180,180,180)';
-        this.text_color = 0;
         this.target_x = null;
         this.target_y = null;
         this.clicked = false;
@@ -149,7 +148,7 @@ class P5Node {
     }
 
 
-    show(color, font, text_color) {
+    show(color, font, label_color, label_container_color, description_color, description_container_color, label_width, description_width) {
         let damp = 0.05
         if (this.target_x) {
             this.x += damp * (this.target_x - this.x);
@@ -185,12 +184,10 @@ class P5Node {
         circle(0, 0, 2 * this.r);
 
         textFont(font);
-        if (text_color) this.text_color = text_color
         const text_size = 14;
         textSize(text_size);
         const line_height = textLeading()
 
-        let label_width = 300;
         const label_lines = this.wrap_text(this.label, label_width);
         label_width = 0;
         for (let line of label_lines) {
@@ -200,25 +197,24 @@ class P5Node {
         const label_height = line_height * label_lines.length;
 
 
-        fill(('rgba(255,255,255,0.8)'));
+        fill(label_container_color);
         noStroke()
         rect(-label_width / 2 - 8, -label_height / 2, label_width + 8, label_height);
-        fill(this.text_color)
+        fill(label_color)
         textAlign(CENTER, TOP);
         text(this.label, -label_width / 2, -label_height / 2, label_width, label_height);
 
         if (this.hovered_prolonged) {
             if (this.description) {
-                const desc_width = 150;
-                const desc_lines = this.wrap_text(this.description, desc_width);
-                const desc_height = line_height * desc_lines.length;
+                const description_lines = this.wrap_text(this.description, description_width);
+                const description_height = line_height * description_lines.length;
 
-                fill('rgba(130,130,130,0.9)');
-                rect(-desc_width / 2 - 4, label_height / 2 + 3, desc_width + 4, desc_height + 4);
-                fill(255);
+                fill(description_container_color);
+                rect(-description_width / 2 - 4, label_height / 2 + 3, description_width + 4, description_height + 4);
+                fill(description_color);
                 noStroke();
                 textAlign(CENTER, TOP);
-                text(this.description, -desc_width / 2, label_height / 2 + 3, desc_width, desc_height);
+                text(this.description, -description_width / 2, label_height / 2 + 3, description_width, description_height);
             }
         }
         pop();

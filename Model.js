@@ -198,6 +198,9 @@ class Model {
         // console.log(this.graph_meta)
         // console.log(this.graph_edges)
 
+
+
+
         for (let node_id of Object.keys(this.graph_meta)) {
             dagre_graph.setNode(node_id, {})
         }
@@ -207,7 +210,6 @@ class Model {
         }
 
         dagre.layout(dagre_graph)
-
 
         let max_x = 0;
         let max_y = 0;
