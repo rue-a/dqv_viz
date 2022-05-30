@@ -1,36 +1,45 @@
 
 // --------------------
 // PROPERTIES
-
-// contents ----
-const PREFIXES = [
-  'PREFIX dqv: <http://www.w3.org/ns/dqv#>',
-  'PREFIX dct: <http://purl.org/dc/terms/>',
-  'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>',
-  'PREFIX skos: <http://www.w3.org/2004/02/skos/core#>',
-  'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>',
-  'PREFIX prov: <http://www.w3.org/ns/prov#>',
-  'PREFIX gkq: <https://geokur-dmp.geo.tu-dresden.de/quality-register#>',
-];
-
-const PREDICATES = [
-  'dqv:inDimension',
-  'dqv:inCategory',
-  'gkq:inRegister'
-];
+const PREFIXES = {
+  'dqv': 'http://www.w3.org/ns/dqv#',
+  'dct': 'http://purl.org/dc/terms/',
+  'xsd': 'http://www.w3.org/2001/XMLSchema#',
+  'skos': 'http://www.w3.org/2004/02/skos/core#',
+  'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+  'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+  'prov': 'http://www.w3.org/ns/prov#',
+  'gkq': 'https://geokur-dmp.geo.tu-dresden.de/quality-register#',
+};
 
 // add list of labels that are used in visualization. Order of list determines fallback labels, i.e. if there is no rdfs:label, then dct:title is used and so on.
 const LABELS = [
   'rdfs:label',
   'skos:prefLabel',
-  'dct:title',  
+  'dct:title',
 ];
 
 const DESCRIPTIONS = [
   'rdfs:comment',
   'skos:definition',
   'dct:description'
-]
+];
+
+// set null if all predicates that are present in the endpoint should be used (except the ones in EXCLUDE_PREDICATES)
+const PREDICATES = [
+  'dqv:inDimension',
+  'dqv:inCategory',
+  'gkq:inRegister'
+];
+// BETA!! not recommended. All prefixes of all predicates in the graph have to be listed in PREFIXES. 
+// const PREDICATES = null;
+
+let EXCLUDE_PREDICATES = [
+];
+EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(LABELS);
+EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(DESCRIPTIONS);
+
+
 
 const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
 const INITIAL_NODE = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
@@ -102,9 +111,11 @@ function setup() {
   node_model.init(
     PREFIXES,
     ENDPOINT,
-    INITIAL_NODE,
+    PREDICATES,
+    EXCLUDE_PREDICATES,
     LABELS,
-    DESCRIPTIONS
+    DESCRIPTIONS,
+    INITIAL_NODE
   ).then(() => {
     view.update_data();
   })
@@ -123,12 +134,10 @@ function doubleClicked() {
   for (let p5node of view.get_nodes()) {
     let node_id = p5node.double_clicked();
     if (node_id) {
-      for (let predicate of PREDICATES) {
-        node_model.expand_node(node_id, predicate).then(() => {
-          // view.update_data(exclude_node_id = node_id);
-          view.update_data();
-        })
-      }
+      node_model.expand_node(node_id).then(() => {
+        // view.update_data(exclude_node_id = node_id);
+        view.update_data();
+      })
     }
   }
 }

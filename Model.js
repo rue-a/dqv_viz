@@ -3,15 +3,27 @@ class Model {
         this.graph_meta = {}
         this.graph_layout = {}
         this.graph_edges = []
-        this.prefixes = null
-        this.endpoint = null
     }
 
-    async init(prefixes, endpoint, initial_node, labels, descriptions) {
-        this.prefixes = prefixes;
+    async init(prefixes, endpoint, predicates, exclude_predicates, labels, descriptions, initial_node) {
+        this.prefixes_dict = prefixes;
+        this.prefixes = [];
+        for (let key of Object.keys(prefixes)) {
+            this.prefixes = this.prefixes.concat('PREFIX ' + key + ': <' + prefixes[key] + '>')
+        }
         this.endpoint = endpoint;
         this.labels = labels;
         this.descriptions = descriptions;
+        this.predicates = predicates;
+
+        if (this.predicates == null) {
+            this.predicates = await this.get_all_predicates();
+        }
+
+        for (let predicate of exclude_predicates) {
+            this.predicates = this.predicates.filter(v => v !== predicate);
+        }
+        console.log(this.predicates)
 
         await this.add_node(initial_node);
     }
@@ -24,19 +36,37 @@ class Model {
         return response.json();
     }
 
-    build_filter(variable, options) {
+    build_filter(variable, values, logic) {
         let filter = ['FILTER ('];
-        for (let option of options){
-            filter = filter.concat(variable + ' = ' + option);
-            filter = filter.concat(' || ');
+        for (let value of values) {
+            filter = filter.concat(variable + ' = ' + value);
+            filter = filter.concat(logic);
         }
-        filter[filter.length-1] = ')';
+        filter[filter.length - 1] = ')';
         filter = filter.join(' ');
         return filter
     }
 
+    async get_all_predicates() {
+        let predicates = [];
+        let query = 'SELECT DISTINCT ?predicate WHERE { ?a ?predicate ?b }';
+        const response = await this.sparql(query);
+        for (let binding of response.results.bindings) {
+            let predicate = binding.predicate.value
+            for (let key of Object.keys(this.prefixes_dict)) {
+                if (predicate.includes(this.prefixes_dict[key])) {
+                    predicate = predicate.replace(this.prefixes_dict[key], key + ':')
+                }
+            }
+            predicates = predicates.concat(predicate);
+        }
+
+
+        return predicates;
+    }
+
     async get_node_label(node) {
-        let filter = this.build_filter('?predicate', this.labels);        
+        let filter = this.build_filter('?predicate', this.labels, '||');
         let select = [
             'SELECT ?label WHERE {',
             'OPTIONAL {<' + node + '> ?predicate ?label. }',
@@ -54,7 +84,7 @@ class Model {
 
 
     async get_node_description(node) {
-        let filter = this.build_filter('?predicate', this.descriptions); 
+        let filter = this.build_filter('?predicate', this.descriptions, '||');
         let select = [
             'SELECT ?description WHERE {',
             'OPTIONAL {<' + node + '> ?predicate ?description. }',
@@ -126,53 +156,56 @@ class Model {
         return nodes
     }
 
-    async expand_node(node_id, predicate) {
-        let parents = await this.get_parents(node_id, predicate)
-        let children = await this.get_children(node_id, predicate)
-        let expanded_nodes_ids = [];
-        let reference = {};
-        let edges = [];
+    async expand_node(node_id) {
+        for (let predicate of this.predicates) {
+            let parents = await this.get_parents(node_id, predicate)
+            let children = await this.get_children(node_id, predicate)
+            let expanded_nodes_ids = [];
+            let reference = {};
+            let edges = [];
 
-        let node_label = await this.get_node_label(node_id)
-        if (!node_label) node_label = node_id
-        reference[node_id] = {
-            'id': node_id,
-            'label': node_label,
-            'description': await this.get_node_description(node_id),
-            'class': await this.get_node_class(node_id)
+            let node_label = await this.get_node_label(node_id)
+            if (!node_label) node_label = node_id
+            reference[node_id] = {
+                'id': node_id,
+                'label': node_label,
+                'description': await this.get_node_description(node_id),
+                'class': await this.get_node_class(node_id)
+            }
+
+            let edge_label = await this.get_node_label(predicate)
+            if (!edge_label) edge_label = predicate
+
+            for (let parent of parents) {
+                edges.push({ from: parent.id, to: node_id, label: edge_label })
+                reference[parent.id] = {}
+                reference[parent.id].id = parent.id;
+                let parent_label = parent.label
+                if (!parent_label) parent_label = parent.id
+                reference[parent.id].label = parent_label;
+                reference[parent.id].description = parent.description;
+                reference[parent.id].class = parent.class;
+                expanded_nodes_ids.push(parent.id)
+            }
+            for (let child of children) {
+                edges.push({ from: node_id, to: child.id, label: edge_label })
+                reference[child.id] = {}
+                reference[child.id].id = child.id;
+                let child_label = child.label
+                if (!child_label) child_label = child.id
+                reference[child.id].label = child_label;
+                reference[child.id].description = child.description;
+                reference[child.id].class = child.class;
+                expanded_nodes_ids.push(child.id)
+            }
+
+            this.add_data(reference, edges);
+            this.calc_layout();
         }
 
-        let edge_label = await this.get_node_label(predicate)
-        if (!edge_label) edge_label = predicate
-
-        for (let parent of parents) {
-            edges.push({ from: parent.id, to: node_id, label: edge_label })
-            reference[parent.id] = {}
-            reference[parent.id].id = parent.id;
-            let parent_label = parent.label
-            if (!parent_label) parent_label = parent.id
-            reference[parent.id].label = parent_label;
-            reference[parent.id].description = parent.description;
-            reference[parent.id].class = parent.class;
-            expanded_nodes_ids.push(parent.id)
-        }
-        for (let child of children) {
-            edges.push({ from: node_id, to: child.id, label: edge_label })
-            reference[child.id] = {}
-            reference[child.id].id = child.id;
-            let child_label = child.label
-            if (!child_label) child_label = child.id
-            reference[child.id].label = child_label;
-            reference[child.id].description = child.description;
-            reference[child.id].class = child.class;
-            expanded_nodes_ids.push(child.id)
-        }
-
-        this.add_data(reference, edges);
-        this.calc_layout();
 
 
-        return expanded_nodes_ids
+        // return expanded_nodes_ids
     }
 
     async add_node(node_id) {
@@ -247,23 +280,6 @@ class Model {
         }
 
     }
-
-    // edge_in_graph(edge) {
-    //     let in_graph = false
-    //     for (let i in this.graph_edges) {
-
-    //         if (
-    //             (edge.from == this.graph_edges[i].from)
-    //             &&
-    //             (edge.to == this.graph_edges[i].to)
-    //             &&
-    //             (edge.label == this.graph_edges[i].label)
-    //         ) {
-    //             in_graph = true
-    //         }
-    //     }
-    //     return in_graph
-    // }
 
     remove_edge(edge) {
         let edge_index = null;
