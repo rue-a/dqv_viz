@@ -124,8 +124,8 @@ function setup() {
 }
 
 function draw() {
-  clear();
-  view.update_canvas()
+  background('white');
+  view.update_canvas();
   if (hover) enable_hover();
   print_controls();
 }
