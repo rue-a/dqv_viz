@@ -20,10 +20,13 @@ class Model {
             this.predicates = await this.get_all_predicates();
         }
 
-        for (let predicate of exclude_predicates) {
+        if (this.exclude_predicates) {
+            for (let predicate of exclude_predicates) {
             this.predicates = this.predicates.filter(v => v !== predicate);
         }
         console.log(this.predicates)
+        }
+        
 
         await this.add_node(initial_node);
     }
@@ -71,6 +74,7 @@ class Model {
             'SELECT ?label WHERE {',
             'OPTIONAL {<' + node + '> ?predicate ?label. }',
             filter,
+            'FILTER (lang(?label) = "en")',
             '}'
         ]
         select = this.prefixes.concat(select).join(' ');
@@ -89,6 +93,7 @@ class Model {
             'SELECT ?description WHERE {',
             'OPTIONAL {<' + node + '> ?predicate ?description. }',
             filter,
+            'FILTER (lang(?label) = "en")',
             '}'
         ]
         select = this.prefixes.concat(select).join(' ');

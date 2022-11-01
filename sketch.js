@@ -1,6 +1,8 @@
 
 // --------------------
 // PROPERTIES
+
+// used prefixes
 const PREFIXES = {
   'dqv': 'http://www.w3.org/ns/dqv#',
   'dct': 'http://purl.org/dc/terms/',
@@ -10,8 +12,12 @@ const PREFIXES = {
   'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
   'prov': 'http://www.w3.org/ns/prov#',
   'gkq': 'https://geokur-dmp.geo.tu-dresden.de/quality-register#',
-  'luckinet': 'https://www.idiv.de/de/luckinet#'
 };
+
+
+const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
+const INITIAL_NODE = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
+
 
 // add list of labels that are used in visualization. Order of list determines fallback labels, i.e. if there is no rdfs:label, then dct:title is used and so on.
 const LABELS = [
@@ -26,38 +32,34 @@ const DESCRIPTIONS = [
   'dct:description'
 ];
 
+// edges that are used for node expansion
 // set null if all predicates that are present in the endpoint should be used (except the ones in EXCLUDE_PREDICATES)
-// const PREDICATES = [
-//   'dqv:inDimension',
-//   'dqv:inCategory',
-//   'gkq:inRegister'
-// ];
-// BETA!! not recommended. All prefixes of all predicates in the graph have to be listed in PREFIXES. 
-const PREDICATES = null;
-
-let EXCLUDE_PREDICATES = [
-  'rdf:type'
+const PREDICATES = [
+  'dqv:inDimension',
+  'dqv:inCategory',
+  'gkq:inRegister'
 ];
-EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(LABELS);
-EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(DESCRIPTIONS);
+const EXCLUDE_PREDICATES = null;
+
+// BETA!! not recommended. All prefixes of all predicates in the graph have to be listed in PREFIXES. 
+// const PREDICATES = null;
+
+// let EXCLUDE_PREDICATES = [
+//   'rdf:type'
+// ];
+// EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(LABELS);
+// EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(DESCRIPTIONS);
 
 
 
-const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/luckinet_ontology/sparql";
-const INITIAL_NODE = 'https://www.idiv.de/de/luckinet#ontology';
 
 // style ----
 let hover = true;
 // full IRIs has to be used to refer to node classes (no prefixes)
 const node_colors = {
-  "https://www.idiv.de/de/luckinet#concept_class_0": 'rgb(123, 169, 255)',
-  "https://www.idiv.de/de/luckinet#concept_class_1": 'rgb(255, 167, 132)',
-  "https://www.idiv.de/de/luckinet#concept_class_2": 'rgb(76, 240, 166)',
-  "https://www.idiv.de/de/luckinet#concept_class_3": 'rgb(16, 240, 166)',
-  "https://www.idiv.de/de/luckinet#concept_class_4": 'rgb(76, 100, 16)',
-  "https://www.idiv.de/de/luckinet#concept_class_5": 'rgb(7, 24, 166)',
-  "https://www.idiv.de/de/luckinet#concept_class_6": 'rgb(76, 20, 16)',
-
+  "http://www.w3.org/ns/dqv#Category": 'rgb(123, 169, 255)',
+  "http://www.w3.org/ns/dqv#Dimension": 'rgb(255, 167, 132)',
+  "http://www.w3.org/ns/dqv#Metric": 'rgb(76, 240, 166)'
 };
 const radius = 25;
 const label_color = 'black';
