@@ -1,12 +1,12 @@
 # RDFViz
 
-The repository allows to generate an interactive visualization of a subset of an RDF-Graph. The visualization starts from a single, predefined node. Any node can be expanded with double-click. Expansion is only triggered for certain, predefined edges. 
+The repository allows to generate an interactive visualization of a subset of an RDF-Graph. The visualization starts from a single, predefined node. Any node can be expanded with double-click. Expansion is only triggered for certain, predefined edges.
 
 Each node is attached with its English label and description. The description is only shown on hover. The nodes can be colorized based on their class.
 
 ## Visualization settings
 
-The visualization is controlled by various setting that are defined in the top part of `sketch.js`.
+The visualization is controlled by various settings that are defined in the top part of `Controller.js`.
 
 ```js
 // --------------------
@@ -71,9 +71,9 @@ const description_container_width = 300;
 
 ## Used Libraries
 
-- P5: https://github.com/processing/p5.js
+- P5: <https://github.com/processing/p5.js>
   - GNU Lesser General Public License
 
-- Dagre: https://github.com/dagrejs/dagre
+- Dagre: <https://github.com/dagrejs/dagre>
   - MIT License
   
