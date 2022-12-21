@@ -1,3 +1,8 @@
+/*
+responsible for drawing a certain view if the model
+on the canvas.
+*/
+
 class View {
     constructor() {
 
@@ -121,7 +126,7 @@ class View {
         }
         this.p5edges = []
         for (let edge of edges) {
-            this.p5edges.push(new P5ArrowConnector(this.p5nodes[edge.from], this.p5nodes[edge.to], edge.label))
+            this.p5edges.push(new P5Edge(this.p5nodes[edge.from], this.p5nodes[edge.to], edge.label))
         }
     }
 

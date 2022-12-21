@@ -110,7 +110,7 @@ class P5Node {
     }
 
     wrap_text(str, maxWidth) {
-        // hacked with logics from P5.js' function text(str, x, y, [x2], [y2])
+        // based on logics from P5.js' function text(str, x, y, [x2], [y2])
         let line;
         let lines;
         let words;

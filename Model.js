@@ -1,3 +1,22 @@
+/*
+resonsible for the internal data managment, layout algorithms
+and executing SPARQL queries.
+
+graph_meta: JS object with node_ids as keys and metadata for these 
+keys as values. Metadata comprises the node_id, the node label, the 
+node description, and the node class.
+    see add_node() and remove_node()
+
+graph_layout: JS object with node_ids as keys and their positions in 
+a normalized coordinate system as values. Dagre graph source code is
+used to calculate the layout.
+    see calc_layout()
+
+graph_edges: List with egde-objects. A edge has a origination-node-id,
+a target-node-id, and a label. 
+    see expand_node() and remove_edge()
+*/
+
 class Model {
     constructor() {
         this.graph_meta = {}
@@ -15,9 +34,6 @@ class Model {
         this.labels = labels;
         this.descriptions = descriptions;
         this.predicates = predicates;
-
-
-
 
         await this.add_node(initial_node);
     }

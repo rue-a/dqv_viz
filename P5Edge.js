@@ -1,4 +1,4 @@
-class P5ArrowConnector {
+class P5Edge {
   constructor(nodeFrom, nodeTo, label) {
     this.nodeFrom = nodeFrom;
     this.nodeTo = nodeTo
