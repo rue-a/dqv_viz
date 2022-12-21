@@ -48,7 +48,7 @@ const PREDICATES = [
   'dqv:inCategory',
   'gkq:inRegister'
 ];
-const EXCLUDE_PREDICATES = null;
+
 
 // style ----
 let hover = true;

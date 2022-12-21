@@ -1,73 +1,68 @@
 
-// --------------------
-// PROPERTIES
-
-// used prefixes
-const PREFIXES = {
-  'dqv': 'http://www.w3.org/ns/dqv#',
-  'dct': 'http://purl.org/dc/terms/',
-  'xsd': 'http://www.w3.org/2001/XMLSchema#',
-  'skos': 'http://www.w3.org/2004/02/skos/core#',
-  'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
-  'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-  'prov': 'http://www.w3.org/ns/prov#',
-  'gkq': 'https://geokur-dmp.geo.tu-dresden.de/quality-register#',
-};
+// // --------------------
+// // PROPERTIES
 
 
-const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
-const INITIAL_NODE = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
+// // config = get_config("config.json");
+// // console.log(config)
 
 
-// add list of labels that are used in visualization. Order of list determines fallback labels, i.e. if there is no rdfs:label, then dct:title is used and so on.
-const LABELS = [
-  'rdfs:label',
-  'skos:prefLabel',
-  'dct:title',
-];
+// // used prefixes
+// const PREFIXES = {
+//   'dqv': 'http://www.w3.org/ns/dqv#',
+//   'dct': 'http://purl.org/dc/terms/',
+//   'xsd': 'http://www.w3.org/2001/XMLSchema#',
+//   'skos': 'http://www.w3.org/2004/02/skos/core#',
+//   'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+//   'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+//   'prov': 'http://www.w3.org/ns/prov#',
+//   'gkq': 'https://geokur-dmp.geo.tu-dresden.de/quality-register#',
+// };
 
-const DESCRIPTIONS = [
-  'rdfs:comment',
-  'skos:definition',
-  'dct:description'
-];
 
-// edges that are used for node expansion
-// set null if all predicates that are present in the endpoint should be used (except the ones in EXCLUDE_PREDICATES)
-const PREDICATES = [
-  'dqv:inDimension',
-  'dqv:inCategory',
-  'gkq:inRegister'
-];
-const EXCLUDE_PREDICATES = null;
+// const ENDPOINT = "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql";
+// const INITIAL_NODE = 'https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister';
 
-// BETA!! not recommended. All prefixes of all predicates in the graph have to be listed in PREFIXES. 
-// const PREDICATES = null;
 
-// let EXCLUDE_PREDICATES = [
-//   'rdf:type'
+// // add list of labels that are used in visualization. Order of list determines 
+// // fallback labels, i.e. if there is no rdfs:label, then dct:title is used and 
+// // so on.
+// const LABELS = [
+//   'rdfs:label',
+//   'skos:prefLabel',
+//   'dct:title',
 // ];
-// EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(LABELS);
-// EXCLUDE_PREDICATES = EXCLUDE_PREDICATES.concat(DESCRIPTIONS);
+
+// const DESCRIPTIONS = [
+//   'rdfs:comment',
+//   'skos:definition',
+//   'dct:description'
+// ];
+
+// // edges that are used for node expansion
+// const PREDICATES = [
+//   'dqv:inDimension',
+//   'dqv:inCategory',
+//   'gkq:inRegister'
+// ];
 
 
 
-
-// style ----
-let hover = true;
-// full IRIs has to be used to refer to node classes (no prefixes)
-const node_colors = {
-  "http://www.w3.org/ns/dqv#Category": 'rgb(123, 169, 255)',
-  "http://www.w3.org/ns/dqv#Dimension": 'rgb(255, 167, 132)',
-  "http://www.w3.org/ns/dqv#Metric": 'rgb(76, 240, 166)'
-};
-const radius = 25;
-const label_color = 'black';
-const label_container_color = 'rgba(255,255,255,0.8)';
-const description_color = 'white';
-const description_container_color = 'rgba(130,130,130,0.9)';
-const label_container_width = 300;
-const description_container_width = 300;
+// // style ----
+// let hover = true;
+// // full IRIs has to be used to refer to node classes (no prefixes)
+// const node_colors = {
+//   "http://www.w3.org/ns/dqv#Category": 'rgb(123, 169, 255)',
+//   "http://www.w3.org/ns/dqv#Dimension": 'rgb(255, 167, 132)',
+//   "http://www.w3.org/ns/dqv#Metric": 'rgb(76, 240, 166)'
+// };
+// const radius = 25;
+// const label_color = 'black';
+// const label_container_color = 'rgba(255,255,255,0.8)';
+// const description_color = 'white';
+// const description_container_color = 'rgba(130,130,130,0.9)';
+// const label_container_width = 300;
+// const description_container_width = 300;
 
 
 // ----------------------
@@ -98,33 +93,32 @@ function preload() {
 
 function setup() {
   canvas = createCanvas(width, height);
-
   view.init(
     node_model,
     width,
     height,
     horizontal_margin,
     vertical_margin,
-    radius,
-    node_colors,
+    config.style.radius,
+    config.style.node_colors,
     inconsolata,
     open_sans_light,
-    label_color,
-    label_container_color,
-    description_color,
-    description_container_color,
-    label_container_width,
-    description_container_width
+    config.style.label_color,
+    config.style.label_container_color,
+    config.style.description_color,
+    config.style.description_container_color,
+    config.style.label_container_width,
+    config.style.description_container_width
   );
 
   node_model.init(
-    PREFIXES,
-    ENDPOINT,
-    PREDICATES,
-    EXCLUDE_PREDICATES,
-    LABELS,
-    DESCRIPTIONS,
-    INITIAL_NODE
+    config.content.endpoint,
+    config.content.initial_node,
+    config.content.prefixes,
+    config.content.predicates,
+    config.content.labels,
+    config.content.descriptions,
+
   ).then(() => {
     view.update_data();
   })
@@ -135,7 +129,11 @@ function setup() {
 function draw() {
   background('white');
   view.update_canvas();
-  if (hover) enable_hover();
+  if (config.style.hover) {
+    for (let p5node of view.get_nodes()) {
+      p5node.hover();
+    }
+  };
   print_controls();
 }
 
@@ -239,15 +237,14 @@ function mouseWheel(event) {
   }
 }
 
-function enable_hover() {
-  for (let p5node of view.get_nodes()) {
-    p5node.hover();
-  }
-}
+
 
 function print_controls() {
   textFont(inconsolata);
-  let controls = 'Double left click on a node: Expand this node\nLeft click and hold a node: Drag this node\nStrg plus left click on a node: Go to this nodes IRI\nWheel click on a node: Remove this node from the visualization\n (careful; removing the last node requires reloading the page)'
+  let controls = `Double left click on a node: Expand this node
+  Left click and hold a node: Drag this node
+  Strg plus left click on a node: Open this this node\'s IRI in a new tab
+  Wheel click on a node: Remove this node from the visualization`
   textAlign(RIGHT, BOTTOM)
   text(controls, width - 8, height - 8)
   fill(150)

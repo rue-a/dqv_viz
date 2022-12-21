@@ -25,6 +25,7 @@ class View {
         this.description_container_color = description_container_color;
         this.label_width = label_width;
         this.description_width = description_width;
+        console.log(this)
     }
 
     translate_nodes(x, y, coords_old) {
@@ -187,7 +188,7 @@ class View {
         for (let p5node of p5nodes) {
             let node_color = null;
             for (let node_class of Object.keys(this.node_colors)) {
-                if (p5node.get_classes().includes(node_class)) node_color = node_colors[node_class];
+                if (p5node.get_classes().includes(node_class)) node_color = this.node_colors[node_class];
             }
             p5node.show(node_color, this.node_font, this.label_color, this.label_container_color, this.description_color, this.description_container_color, this.label_width, this.description_width);
         }

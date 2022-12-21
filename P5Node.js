@@ -1,5 +1,5 @@
 class P5Node {
-    constructor(id, x, y, r, label, description, node_classes, outgoing_edges, ingoing_edges) {
+    constructor(id, x, y, r, label, description, node_classes) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -28,8 +28,6 @@ class P5Node {
     get_target_y() { return this.target_y }
     get_id() { return this.id }
     get_classes() { return this.classes }
-    get_ingoing_edges() { return this.ingoing_edges }
-    get_outgoing_edges() { return this.outgoing_edges }
 
 
     focussed() {
