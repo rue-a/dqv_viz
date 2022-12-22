@@ -3,7 +3,7 @@ const config = {
         // SPARQL endpoint that is queried
         "endpoint": "https://geokur-dmp2.geo.tu-dresden.de/fuseki/ckan_mirror/sparql",
         // node on which the vizualization starts
-        "initial_node": "https://geokur-dmp.geo.tu-dresden.de/dataset/global-spatially-disaggregated-crop-production-statistics-data-for-2010-version-2-0",
+        "initial_node": "https://geokur-dmp.geo.tu-dresden.de/dataset/a98cfcf3-3e2a-4afd-84d0-5f1208a4d03a",
         // prefixes that are used by the program and content descriptions
         "prefixes": {
             "dqv": "http://www.w3.org/ns/dqv#",
@@ -14,7 +14,8 @@ const config = {
             "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             "prov": "http://www.w3.org/ns/prov#",
             "gkq": "https://geokur-dmp.geo.tu-dresden.de/quality-register#",
-            "dcat": "http://www.w3.org/ns/dcat#"
+            "dcat": "http://www.w3.org/ns/dcat#",
+            "adms": "http://www.w3.org/ns/adms#"
         },
         // edges that should be visualized (this also determines the vizualized nodes)
         "predicates": [
@@ -35,9 +36,16 @@ const config = {
             "skos:definition",
         ],
         // predicates that describe a node's metadata (only prefixed predicates are allowed here)
+        // nested things cannont be parsed currently
         "metadata_predicates": [
-            "dct:temporal",
-            "dcat:theme"
+            "dct:title",
+            "dct:description",
+            "rdf:type",
+            "dcat:theme",
+            "dct:conformsTo",
+            "dcat:keyword",
+            "adms:identifier",
+            "dqv:hasQualityMeasurement"
         ]
     },
     "style": {
@@ -45,9 +53,9 @@ const config = {
         "hover": true,
         // node colors for specific RDF classes (the prefixes from above are not allow here, only use full IRIs)
         "node_colors": {
-            "http://www.w3.org/ns/dqv#Category": 'rgb(123, 169, 255)',
-            "http://www.w3.org/ns/dqv#Dimension": 'rgb(255, 167, 132)',
-            "http://www.w3.org/ns/dqv#Metric": 'rgb(76, 240, 166)'
+            "http://www.w3.org/ns/prov#Activity": 'rgb(123, 169, 255)',
+            "http://www.w3.org/ns/prov#Entity": 'rgb(255, 167, 132)',
+            "http://www.w3.org/ns/prov#Agent": 'rgb(76, 240, 166)'
         },
         // node radius in px 
         "radius": 25,

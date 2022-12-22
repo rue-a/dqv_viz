@@ -129,6 +129,38 @@ class Model {
         return node_class;
     }
 
+    // async expand_bnode(bnode, node, predicate) {
+    //     // console.log(node, predicate)
+    //     let select = [
+    //         'SELECT ?predicate ?node WHERE {',
+    //         '<' + node + '> ' + predicate + ' [',
+    //         '?predicate ?node]',
+    //         '}'
+    //     ]
+    //     select = this.prefixes.concat(select).join(' ');
+    //     const response = await this.sparql(select);
+    //     const bnode = {};
+    //     const result_values = [];
+    //     for (let binding of response.results.bindings) {
+    //         // console.log(binding)
+    //         if (binding["node"]) {
+    //             if (binding["node"].type == 'bnode') {
+    //                 // await this.expand_bnode(node, predicate_map[variable])
+    //                 console.log("bnode in bnode")
+    //                 // result_values.push(this.expand_bnode())
+    //             }
+    //             else {
+    //                 result_values.push([binding["predicate"].value, binding["node"].value]);
+    //             }
+
+    //         }
+
+
+    //         bnode[bnode] = result_values
+    //     }
+    //     console.log(result_values)
+    // }
+
     async get_metadata(reference) {
         if (this.metadata_predicates.length > 0) {
             for (let node of Object.keys(reference)) {
@@ -153,13 +185,26 @@ class Model {
                 select.push(
                     '}'
                 )
+                const predicate_map = {}
+                for (let predicate of this.metadata_predicates) {
+                    predicate_map[predicate.replace(':', '_')] = predicate
+                }
                 select = this.prefixes.concat(select).join(' ');
                 // console.log(select)
                 const response = await this.sparql(select);
                 for (let variable of response.head.vars) {
-                    let result_values = [];
+                    const result_values = [];
                     for (let binding of response.results.bindings) {
-                        if (binding[variable]) result_values.push(binding[variable].value);
+                        // console.log(binding)
+                        if (binding[variable]) {
+                            // if (binding[variable].type == 'bnode') {
+                            //     await this.expand_bnode(binding[variable].value, node, predicate_map[variable])
+                            //     // result_values.push(this.expand_bnode())
+                            // }
+                            // else 
+                            if (!(result_values.includes(binding[variable].value))) result_values.push(binding[variable].value);
+
+                        }
                     }
                     reference[node].meta[variable] = result_values;
 
