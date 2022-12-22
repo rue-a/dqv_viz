@@ -65,7 +65,7 @@ function setup() {
     config.content.predicates,
     config.content.labels,
     config.content.descriptions,
-
+    config.content.metadata_predicates
   ).then(() => {
     view.update_data();
   })

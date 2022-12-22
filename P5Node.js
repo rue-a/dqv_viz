@@ -1,5 +1,5 @@
 class P5Node {
-    constructor(id, x, y, r, label, description, node_classes) {
+    constructor(id, x, y, r, label, description, node_classes, meta) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -7,6 +7,7 @@ class P5Node {
         this.description = description;
         this.r = r;
         this.classes = node_classes;
+        this.meta = meta
         this.color = 'rgb(180,180,180)';
         this.target_x = null;
         this.target_y = null;
@@ -27,6 +28,10 @@ class P5Node {
     get_target_x() { return this.target_x }
     get_target_y() { return this.target_y }
     get_id() { return this.id }
+    get_label() { return this.label }
+    get_description() { return this.description }
+    get_classes() { return this.classes }
+    get_meta() { return this.meta }
     get_classes() { return this.classes }
 
 

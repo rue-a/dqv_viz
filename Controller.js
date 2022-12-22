@@ -47,7 +47,10 @@ function mousePressed() {
     if (mouseButton === LEFT) {
         clicked_node = false;
         for (let p5node of view.get_nodes()) {
-            if (p5node.left_clicked()) clicked_node = true;
+            if (p5node.left_clicked()) {
+                clicked_node = true;
+                console.log(p5node)
+            }
         }
         if (strg_pressed) {
             strg_pressed = false;

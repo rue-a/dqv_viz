@@ -30,7 +30,7 @@ class View {
         this.description_container_color = description_container_color;
         this.label_width = label_width;
         this.description_width = description_width;
-        console.log(this)
+        // console.log(this)
     }
 
     translate_nodes(x, y, coords_old) {
@@ -110,7 +110,8 @@ class View {
                     this.r * this.zoom_level,
                     meta[id].label,
                     meta[id].description,
-                    meta[id].class
+                    meta[id].class,
+                    meta[id].meta
                 ));
             }
         }

@@ -5,7 +5,7 @@ and executing SPARQL queries.
 graph_meta: JS object with node_ids as keys and metadata for these 
 keys as values. Metadata comprises the node_id, the node label, the 
 node description, and the node class.
-    see add_node() and remove_node()
+    see add_data() and remove_node()
 
 graph_layout: JS object with node_ids as keys and their positions in 
 a normalized coordinate system as values. Dagre graph source code is
@@ -24,7 +24,7 @@ class Model {
         this.graph_edges = []
     }
 
-    async init(endpoint, initial_node, prefixes, predicates, labels, descriptions,) {
+    async init(endpoint, initial_node, prefixes, predicates, labels, descriptions, metadata_predicates) {
         this.prefixes_dict = prefixes;
         this.prefixes = [];
         for (let key of Object.keys(prefixes)) {
@@ -34,6 +34,7 @@ class Model {
         this.labels = labels;
         this.descriptions = descriptions;
         this.predicates = predicates;
+        this.metadata_predicates = metadata_predicates
 
         await this.add_node(initial_node);
     }
@@ -128,6 +129,63 @@ class Model {
         return node_class;
     }
 
+    async get_metadata(reference) {
+        if (this.metadata_predicates.length > 0) {
+            for (let node of Object.keys(reference)) {
+                reference[node].meta = {}
+                let select = [
+                    'SELECT'
+                ]
+                for (let predicate of this.metadata_predicates) {
+                    select.push(
+                        '?' + predicate.replace(':', '_')
+                    )
+                }
+                select.push(
+                    'WHERE {'
+                )
+
+                for (let predicate of this.metadata_predicates) {
+                    select.push(
+                        'OPTIONAL {<' + node + '> ' + predicate + ' ?' + predicate.replace(':', '_') + '. }'
+                    )
+                }
+                select.push(
+                    '}'
+                )
+                select = this.prefixes.concat(select).join(' ');
+                // console.log(select)
+                const response = await this.sparql(select);
+                for (let variable of response.head.vars) {
+                    let result_values = [];
+                    for (let binding of response.results.bindings) {
+                        if (binding[variable]) result_values.push(binding[variable].value);
+                    }
+                    reference[node].meta[variable] = result_values;
+
+                }
+
+
+            }
+        }
+        return reference;
+    }
+
+    async add_node(node_id) {
+        let reference = {};
+        let node_label = await this.get_node_label(node_id)
+        if (!node_label) node_label = node_id
+        reference[node_id] = {
+            'id': node_id,
+            'label': node_label,
+            'description': await this.get_node_description(node_id),
+            'class': await this.get_node_class(node_id)
+        }
+        await this.add_data(reference, []);
+        this.calc_layout();
+
+    }
+
     async get_parents(node, predicate) {
         const nodes = []
         let select = [
@@ -211,31 +269,15 @@ class Model {
                 expanded_nodes_ids.push(child.id)
             }
 
-            this.add_data(reference, edges);
+            await this.add_data(reference, edges);
             this.calc_layout();
         }
-
-
-
-        // return expanded_nodes_ids
     }
 
-    async add_node(node_id) {
-        let reference = {};
-        let node_label = await this.get_node_label(node_id)
-        if (!node_label) node_label = node_id
-        reference[node_id] = {
-            'id': node_id,
-            'label': node_label,
-            'description': await this.get_node_description(node_id),
-            'class': await this.get_node_class(node_id)
-        }
-        this.add_data(reference, []);
-        this.calc_layout();
-
-    }
-
-    add_data(reference, edges) {
+    async add_data(reference, edges) {
+        // console.log(reference)
+        reference = await this.get_metadata(reference)
+        // console.log(reference)
         for (let key of Object.keys(reference)) {
             this.graph_meta[key] = reference[key]
         }

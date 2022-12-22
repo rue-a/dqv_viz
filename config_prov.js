@@ -1,9 +1,9 @@
 const config = {
     "content": {
         // SPARQL endpoint that is queried
-        "endpoint": "https://geokur-dmp2.geo.tu-dresden.de/fuseki/geokur_quality_register/sparql",
+        "endpoint": "https://geokur-dmp2.geo.tu-dresden.de/fuseki/ckan_mirror/sparql",
         // node on which the vizualization starts
-        "initial_node": "https://geokur-dmp.geo.tu-dresden.de/quality-register#qualityRegister",
+        "initial_node": "https://geokur-dmp.geo.tu-dresden.de/dataset/global-spatially-disaggregated-crop-production-statistics-data-for-2010-version-2-0",
         // prefixes that are used by the program and content descriptions
         "prefixes": {
             "dqv": "http://www.w3.org/ns/dqv#",
@@ -13,30 +13,31 @@ const config = {
             "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
             "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             "prov": "http://www.w3.org/ns/prov#",
-            "gkq": "https://geokur-dmp.geo.tu-dresden.de/quality-register#"
+            "gkq": "https://geokur-dmp.geo.tu-dresden.de/quality-register#",
+            "dcat": "http://www.w3.org/ns/dcat#"
         },
         // edges that should be visualized (this also determines the vizualized nodes)
         "predicates": [
-            "dqv:inDimension",
-            "dqv:inCategory",
-            "gkq:inRegister"
+            "prov:used",
+            "prov:wasGeneratedBy"
         ],
-        // labels that are quried for, and order of visualization (if no rdfs:label, then show skos:prefLabel. if no skos:prefLabel, then ...)
+        // labels that are queried for, and order of visualization (if no rdfs:label, then show skos:prefLabel. if no skos:prefLabel, then ...)
         "labels": [
+            "dct:title",
             "rdfs:label",
             "skos:prefLabel",
-            "dct:title"
+
         ],
         // same as labels
         "descriptions": [
+            "dct:description",
             "rdfs:comment",
             "skos:definition",
-            "dct:description"
         ],
         // predicates that describe a node's metadata (only prefixed predicates are allowed here)
         "metadata_predicates": [
-            "skos:prefLabel",
-            "rdf:type",
+            "dct:temporal",
+            "dcat:theme"
         ]
     },
     "style": {
