@@ -129,37 +129,50 @@ class Model {
         return node_class;
     }
 
-    // async expand_bnode(bnode, node, predicate) {
-    //     // console.log(node, predicate)
-    //     let select = [
-    //         'SELECT ?predicate ?node WHERE {',
-    //         '<' + node + '> ' + predicate + ' [',
-    //         '?predicate ?node]',
-    //         '}'
-    //     ]
-    //     select = this.prefixes.concat(select).join(' ');
-    //     const response = await this.sparql(select);
-    //     const bnode = {};
-    //     const result_values = [];
-    //     for (let binding of response.results.bindings) {
-    //         // console.log(binding)
-    //         if (binding["node"]) {
-    //             if (binding["node"].type == 'bnode') {
-    //                 // await this.expand_bnode(node, predicate_map[variable])
-    //                 console.log("bnode in bnode")
-    //                 // result_values.push(this.expand_bnode())
-    //             }
-    //             else {
-    //                 result_values.push([binding["predicate"].value, binding["node"].value]);
-    //             }
+    async expand_bnode(node, predicate) {
 
-    //         }
+        let select = [
+            'SELECT ?bnode ?predicate ?node WHERE {',
+            '<' + node + '> ' + predicate + ' ?bnode .',
+            '?bnode ?predicate ?node',
+            '}'
+        ]
+        select = this.prefixes.concat(select).join(' ');
+        const response = await this.sparql(select);
+        const bnodes = {}
+        const bnode_combinations = []
+        for (let binding of response.results.bindings) {
+            // console.log(binding)
+            if (binding["node"]) {
+                // if (binding["node"].type == 'bnode') {
+                //     if (bnode_combinations.length > 0) {
+                //         for (let combination of bnode_combinations) {
+                //             if (!(combination[0] == node && combination[1] == predicate_map[variable])) {
+                //                 bnode_combinations.push([node, predicate_map[variable]])
+                //             }
+                //         }
+                //     } else {
+                //         bnode_combinations.push([node, predicate_map[variable]])
+                // }
+                // }
+                if (!(Object.keys(bnodes)).includes(binding["bnode"].value)) bnodes[binding["bnode"].value] = {}
+                bnodes[binding["bnode"].value][binding["predicate"].value] = binding["node"].value;
 
+            }
+        }
+        // depth = depth - 1
+        // if (!(depth > 0)) {
+        //     return bnodes
+        // }
+        // for (let combination of bnode_combinations) {
+        //     const deeper_bnodes = await this.expand_bnode(combination[0], combination[1], depth)
+        //     for (let bnode of Object.keys(deeper_bnodes)) {
+        //         bnodes[binding["bnode"].value][binding["predicate"].value][bnode] = deeper_bnodes[bnode]
+        //     }
+        // }
 
-    //         bnode[bnode] = result_values
-    //     }
-    //     console.log(result_values)
-    // }
+        return bnodes
+    }
 
     async get_metadata(reference) {
         if (this.metadata_predicates.length > 0) {
@@ -193,20 +206,39 @@ class Model {
                 // console.log(select)
                 const response = await this.sparql(select);
                 for (let variable of response.head.vars) {
+                    // console.log(variable)
+                    // console.log(response.results.bindings)
                     const result_values = [];
+                    const bnode_combinations = []
                     for (let binding of response.results.bindings) {
                         // console.log(binding)
                         if (binding[variable]) {
-                            // if (binding[variable].type == 'bnode') {
-                            //     await this.expand_bnode(binding[variable].value, node, predicate_map[variable])
-                            //     // result_values.push(this.expand_bnode())
-                            // }
-                            // else 
-                            if (!(result_values.includes(binding[variable].value))) result_values.push(binding[variable].value);
+                            if (binding[variable].type == 'bnode') {
+                                if (bnode_combinations.length > 0) {
+                                    for (let combination of bnode_combinations) {
+                                        if (!(combination[0] == node && combination[1] == predicate_map[variable])) {
+                                            bnode_combinations.push([node, predicate_map[variable]])
+                                        }
+                                    }
+                                } else {
+                                    bnode_combinations.push([node, predicate_map[variable]])
+                                }
+
+
+                            }
+                            else if (!(result_values.includes(binding[variable].value))) result_values.push(binding[variable].value);
 
                         }
                     }
+
+
                     reference[node].meta[variable] = result_values;
+                    for (let combination of bnode_combinations) {
+                        const bnodes = await this.expand_bnode(combination[0], combination[1])
+                        for (let bnode of Object.keys(bnodes)) {
+                            reference[node].meta[variable][bnode] = bnodes[bnode]
+                        }
+                    }
 
                 }
 

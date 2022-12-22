@@ -46,7 +46,7 @@ const config = {
             "dcat:keyword",
             "adms:identifier",
             "dqv:hasQualityMeasurement"
-        ]
+        ],
     },
     "style": {
         // does anything happen when the user hovers a node
